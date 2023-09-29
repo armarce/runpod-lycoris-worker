@@ -6,12 +6,12 @@ import fnmatch
 import math 
 import subprocess
 from runpod.serverless.utils import rp_upload
-
-sleep_time = int(os.environ.get('SLEEP_TIME', 3))
-
-## load your model(s) into vram here
+from s3 import S3
+from renameImages import renameImages
 
 def handler(job):
+
+    S3(job['s3Config']).testConnection()
 
     job_input = job['input']
 
@@ -43,12 +43,16 @@ def handler(job):
 
     steps = int( (totalImages * repeats * lr_scheduler_num_cycles) / ( train_batch_size * groups))
 
-    os.rename(dirExtractPath, "{}/datasets/{}_{}".format(basePath, repeats, output_name))
+    datasetDir = f"{basePath}/datasets/{repeats}_{output_name}"
+
+    os.rename(dirExtractPath, datasetDir)
+
+    renameImages(datasetDir, train_batch_size, output_name)
 
     cmdVenv = 'source venv/bin/activate'
 
-    cmdLora = '''accelerate launch --num_cpu_threads_per_process=4 "./train_network.py" \
---enable_bucket --pretrained_model_name_or_path="runwayml/stable-diffusion-v1-5" \
+    cmdLora = f'''accelerate launch --num_cpu_threads_per_process=4 "./train_network.py" \
+--enable_bucket --pretrained_model_name_or_path="/workspace/v1-5-pruned.safetensors" \
 --train_data_dir="{basePath}/datasets" --resolution="512,512" --output_dir="{basePath}/datasets" \
 --logging_dir="{basePath}/logs" --network_alpha="16" \
 --training_comment="trigger words: {output_name}" --save_model_as=safetensors \
@@ -59,31 +63,24 @@ def handler(job):
 --save_every_n_epochs="1" --mixed_precision="bf16" --save_precision="bf16" --cache_latents \
 --cache_latents_to_disk --optimizer_type="Adamw" --max_data_loader_n_workers="0" \
 --bucket_reso_steps=64 --min_snr_gamma=5 --xformers --bucket_no_upscale \
---multires_noise_iterations="6" --multires_noise_discount="0.2"'''.format(basePath = basePath, 
-                                                                        groups = groups, 
-                                                                        output_name = output_name, 
-                                                                        lr_scheduler_num_cycles = lr_scheduler_num_cycles, 
-                                                                        train_batch_size = train_batch_size,
-                                                                        steps = steps
-                                                                        )
+--multires_noise_iterations="6" --multires_noise_discount="0.2"'''
     
     subprocess.run(cmdVenv, shell=True)
     subprocess.run(cmdLora, shell=True)
 
-    safetensorPath = '{}/datasets/{}.safetensors'.format(basePath, output_name)
+    safetensorPath = f'{basePath}/datasets/{output_name}.safetensors'
 
-    safetensorUrl = rp_upload.upload_image('loras/{}.safetensors'.format(output_name), safetensorPath)
+    S3(job['s3Config']).uploadFile(safetensorPath)
 
     os.remove(zipFilepath)
-    os.remove(zipFilepath)
+    os.remove(safetensorPath)
 
     return {
         "totalImages": totalImages,
         "repeats": repeats,
         "groups": groups,
         "lr_scheduler_num_cycles": lr_scheduler_num_cycles,
-        "steps": steps,
-        "safetensorUrl": safetensorUrl
+        "steps": steps
     }
 
 runpod.serverless.start({

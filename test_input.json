@@ -1,0 +1,7 @@
+{
+    "input": {
+        "dataset_url": "https://pub-b224138df044499f8bddacd240ff31e8.r2.dev/datasets/e9e031b8-4d25-4e40-b7a7-21e9a27d0f41.zip",
+        "output_name": "e9e031b84d254e40b7a721e9a27d0f41",
+        "train_batch_size": 3
+    }
+}

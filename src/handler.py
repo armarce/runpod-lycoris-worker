@@ -10,6 +10,8 @@ from renameImages import renameImages
 
 def handler(job):
 
+    print(job)
+    
     S3(job['s3Config']).testConnection()
 
     job_input = job['input']
@@ -42,7 +44,7 @@ def handler(job):
 
     steps = int( (totalImages * repeats * lr_scheduler_num_cycles) / ( train_batch_size * groups))
 
-    datasetDir = f"{basePath}/datasets/{repeats}_{output_name}"
+    datasetDir = f"{basePath}/datasets/{output_name}/{repeats}_{output_name}"
 
     os.rename(dirExtractPath, datasetDir)
 
@@ -50,7 +52,7 @@ def handler(job):
 
     cmdLora = f'''accelerate launch --num_cpu_threads_per_process=4 "./train_network.py" \
 --enable_bucket --pretrained_model_name_or_path="/workspace/sd-models/v1-5-pruned.safetensors" \
---train_data_dir="{basePath}/datasets" --resolution="512,512" --output_dir="{basePath}/datasets" \
+--train_data_dir="{basePath}/datasets/{output_name}" --resolution="512,512" --output_dir="{basePath}/datasets/{output_name}" \
 --logging_dir="{basePath}/logs" --network_alpha="16" \
 --training_comment="trigger words: {output_name}" --save_model_as=safetensors \
 --network_module=lycoris.kohya --network_args "conv_dim=8" "conv_alpha=4" "use_cp=False" "algo=loha" --network_dropout="0" \
@@ -64,7 +66,7 @@ def handler(job):
 
     subprocess.run(cmdLora, shell=True)
 
-    safetensorPath = f'{basePath}/datasets/{output_name}.safetensors'
+    safetensorPath = f'{basePath}/datasets/{output_name}/{output_name}.safetensors'
 
     S3(job['s3Config']).uploadFile(safetensorPath)
 

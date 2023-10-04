@@ -4,7 +4,7 @@ on:
   push:
     branches-ignore:
       - "refs/tags/*"
-      
+
 jobs:
   docker:
     runs-on: self-hosted
@@ -18,7 +18,7 @@ jobs:
 
       - name: Download SD 1.5 Pruned Model (7.7 GB)
         with: wei/wget@v1
-          args: -O v1-5-pruned.safetensors https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors          
+          args: -O v1-5-pruned.safetensors "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2

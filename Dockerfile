@@ -26,11 +26,12 @@ RUN python3 -m pip install wheel
 # Todo: Install xformers nightly for Torch 2.1.0 support
 ## RUN python3 -m pip install -v -U git+https://github.com/facebookresearch/xformers.git@main#egg=xformers
 
-ADD src .
-ADD kohya_ss .
+RUN git clone https://github.com/bmaltais/kohya_ss
 
-RUN cp /kohya_ss .
-RUN cp /kohya_ss/setup/docker_setup.py ./setup.py
+ADD src .
+
+RUN mv /kohya_ss/. .
+RUN cp /setup/docker_setup.py ./setup.py
 RUN python3 -m pip install -r ./requirements_linux_docker.txt
 RUN python3 -m pip install -r ./requirements.txt
 RUN python3 -m pip install runpod

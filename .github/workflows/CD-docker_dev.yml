@@ -16,10 +16,6 @@ jobs:
           rm -rf "/usr/local/share/boost"
           rm -rf "$AGENT_TOOLSDIRECTORY"
 
-      - name: Clone Kohya_ss repository
-        run: | 
-          git clone https://github.com/bmaltais/kohya_ss
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 

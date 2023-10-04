@@ -56,9 +56,12 @@ FROM base as kohya_ss_setup
 
 # Add SDXL base model
 # This needs to already have been downloaded:
-#   wget https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+
 RUN mkdir -p /sd-models
-RUN cp /home/v1-5-pruned.safetensors /sd-models/v1-5-pruned.safetensors
+
+WORKDIR /sd-models
+
+RUN wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors
 
 # Create workspace working directory
 WORKDIR /
@@ -81,6 +84,8 @@ RUN git checkout ${KOHYA_VERSION} && \
     pip3 install -r requirements.txt && \
     pip3 install . && \
     deactivate
+
+COPY src ./src
 
 WORKDIR /
 

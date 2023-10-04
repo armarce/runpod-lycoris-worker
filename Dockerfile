@@ -16,7 +16,7 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 3
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3
 
-WORKDIR /app
+WORKDIR /workspace
 
 RUN python3 -m pip install wheel
 
@@ -26,10 +26,8 @@ RUN python3 -m pip install wheel
 # Todo: Install xformers nightly for Torch 2.1.0 support
 ## RUN python3 -m pip install -v -U git+https://github.com/facebookresearch/xformers.git@main#egg=xformers
 
-# Install requirements
-RUN git clone https://github.com/bmaltais/kohya_ss
-
-COPY ./src .
+ADD src .
+ADD kohya_ss .
 
 RUN cp /kohya_ss .
 RUN cp /kohya_ss/setup/docker_setup.py ./setup.py

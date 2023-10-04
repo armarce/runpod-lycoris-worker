@@ -17,7 +17,7 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 3
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3
 
 WORKDIR /app
-COPY ./src .
+
 RUN python3 -m pip install wheel
 
 # Todo: Install torch 2.1.0 for cu121 support (only available as nightly as of writing)
@@ -27,8 +27,8 @@ RUN python3 -m pip install wheel
 ## RUN python3 -m pip install -v -U git+https://github.com/facebookresearch/xformers.git@main#egg=xformers
 
 # Install requirements
-COPY ./kohya_ss/requirements.txt ./requirements_linux_docker.txt ./
-COPY ./kohya_ss/setup/docker_setup.py ./setup.py
+COPY kohya_ss/requirements.txt ./requirements_linux_docker.txt ./
+COPY kohya_ss/setup/docker_setup.py ./setup.py
 RUN python3 -m pip install -r ./requirements_linux_docker.txt
 RUN python3 -m pip install -r ./requirements.txt
 RUN python3 -m pip install runpod
@@ -46,8 +46,8 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libnvinfer.so /usr/lib/x86_64-linux-gnu/libn
 RUN useradd -m -s /bin/bash appuser && \
     chown -R appuser: /app
 USER appuser
-COPY --chown=appuser ./src .
-COPY --chown=appuser ./kohya_ss .
+COPY --chown=appuser src .
+COPY --chown=appuser kohya_ss .
 
 STOPSIGNAL SIGINT
 ENV LD_PRELOAD=libtcmalloc.so

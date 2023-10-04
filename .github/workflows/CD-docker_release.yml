@@ -14,9 +14,10 @@ jobs:
           rm -rf /opt/ghc
           rm -rf "/usr/local/share/boost"
           rm -rf "$AGENT_TOOLSDIRECTORY"
-      
+
       - name: Download SD 1.5 Pruned Model (7.7 GB)
-        run: wget "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors"
+        with: wei/wget@v1
+          args: -O v1-5-pruned.safetensors "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2

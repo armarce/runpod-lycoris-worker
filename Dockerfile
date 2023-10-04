@@ -28,10 +28,10 @@ RUN python3 -m pip install wheel
 
 RUN git clone https://github.com/bmaltais/kohya_ss
 
+WORKDIR /workspace/kohya_ss
+
 ADD src .
 
-RUN cp /kohya_ss/. .
-RUN cp /setup/docker_setup.py ./setup.py
 RUN python3 -m pip install -r ./requirements_linux_docker.txt
 RUN python3 -m pip install -r ./requirements.txt
 RUN python3 -m pip install runpod
@@ -48,7 +48,12 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libnvinfer.so /usr/lib/x86_64-linux-gnu/libn
 
 RUN useradd -m -s /bin/bash appuser
 
-RUN chown -R appuser: /app
+WORKDIR /
+
+RUN chown -R appuser: /workspace/kohya_ss
+
+WORKDIR /workspace/kohya_ss
+
 USER appuser
 
 STOPSIGNAL SIGINT

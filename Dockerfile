@@ -18,6 +18,14 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3
 
 WORKDIR /workspace
 
+RUN mkdir sd-models
+
+WORKDIR /workspace/sd-models
+
+RUN wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors
+
+WORKDIR /workspace
+
 RUN python3 -m pip install wheel
 
 # Todo: Install torch 2.1.0 for cu121 support (only available as nightly as of writing)
@@ -60,4 +68,6 @@ STOPSIGNAL SIGINT
 ENV LD_PRELOAD=libtcmalloc.so
 ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 ENV PATH="$PATH:/home/appuser/.local/bin"
-CMD python3 -u /handler.py
+
+WORKDIR /workspace/kohya_ss
+CMD python3 -u handler.py

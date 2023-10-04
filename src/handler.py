@@ -48,8 +48,6 @@ def handler(job):
 
     renameImages(datasetDir, train_batch_size, output_name)
 
-    #cmdVenv = 'source venv/bin/activate'
-
     cmdLora = f'''accelerate launch --num_cpu_threads_per_process=4 "./train_network.py" \
 --enable_bucket --pretrained_model_name_or_path="/workspace/sd-models/v1-5-pruned.safetensors" \
 --train_data_dir="{basePath}/datasets" --resolution="512,512" --output_dir="{basePath}/datasets" \
@@ -63,8 +61,6 @@ def handler(job):
 --cache_latents_to_disk --optimizer_type="Adamw" --max_data_loader_n_workers="0" \
 --bucket_reso_steps=64 --min_snr_gamma=5 --xformers --bucket_no_upscale \
 --multires_noise_iterations="6" --multires_noise_discount="0.2"'''
-    
-    #subprocess.run(cmdVenv, shell=True)
 
     subprocess.run(cmdLora, shell=True)
 
@@ -80,7 +76,7 @@ def handler(job):
         "totalImages": totalImages,
         "repeats": repeats,
         "groups": groups,
-        "lr_scheduler_num_cycles": lr_scheduler_num_cycles,
+        "epochs": lr_scheduler_num_cycles,
         "steps": steps
     }
 

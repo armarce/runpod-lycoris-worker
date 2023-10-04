@@ -31,8 +31,8 @@ RUN git clone https://github.com/bmaltais/kohya_ss
 
 COPY ./src .
 
-RUN mv ./kohya_ss .
-RUN mv ./setup/docker_setup.py ./setup.py
+RUN cp /kohya_ss .
+RUN cp /kohya_ss/setup/docker_setup.py ./setup.py
 RUN python3 -m pip install -r ./requirements_linux_docker.txt
 RUN python3 -m pip install -r ./requirements.txt
 RUN python3 -m pip install runpod
@@ -48,7 +48,6 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libnvinfer.so /usr/lib/x86_64-linux-gnu/libn
     ln -s /usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so /usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so.7
 
 RUN useradd -m -s /bin/bash appuser
-RUN cp ./kohya_ss .
 
 RUN chown -R appuser: /app
 USER appuser

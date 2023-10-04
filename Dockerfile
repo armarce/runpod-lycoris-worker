@@ -47,7 +47,7 @@ RUN useradd -m -s /bin/bash appuser && \
     chown -R appuser: /app
 USER appuser
 COPY --chown=appuser src .
-COPY --chown=appuser kohya_ss .
+#COPY --chown=appuser kohya_ss .
 
 STOPSIGNAL SIGINT
 ENV LD_PRELOAD=libtcmalloc.so

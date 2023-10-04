@@ -21,9 +21,12 @@ jobs:
         with: 
           args: -O ./v1-5-pruned.safetensors "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors"
 
+      - name: "Move SD Model to sd-models dir"
+        run: mv ${GITHUB_WORKSPACE}/v1-5-pruned.safetensors /sd-models/v1-5-pruned.safetensors    
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 

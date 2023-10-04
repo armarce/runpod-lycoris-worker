@@ -1,100 +1,56 @@
-# Stage 1: Base
-FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04 as base
+FROM nvcr.io/nvidia/pytorch:23.04-py3 as base
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/London
 
-ARG KOHYA_VERSION=v22.0.1
+RUN apt update && apt-get install -y software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa && \
+    apt update && \
+    apt-get install -y git curl libgl1 libglib2.0-0 libgoogle-perftools-dev \
+    python3.10-dev python3.10-tk python3-html5lib python3-apt python3-pip python3.10-distutils && \
+    rm -rf /var/lib/apt/lists/*
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ENV DEBIAN_FRONTEND=noninteractive \
-    TZ=Africa/Johannesburg \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=on \
-    SHELL=/bin/bash
+# Set python 3.10 and cuda 11.8 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 3 && \
+    update-alternatives --set python3 /usr/bin/python3.10 && \
+    update-alternatives --set cuda /usr/local/cuda-11.8
 
-# Install Ubuntu packages
-RUN apt update && \
-    apt -y upgrade && \
-    apt install -y --no-install-recommends \
-        software-properties-common \
-        python3.10-venv \
-        python3-pip \
-        python3-tk \
-        bash \
-        dos2unix \
-        git \
-        ncdu \
-        net-tools \
-        openssh-server \
-        libglib2.0-0 \
-        libsm6 \
-        libgl1 \
-        libxrender1 \
-        libxext6 \
-        ffmpeg \
-        wget \
-        curl \
-        psmisc \
-        rsync \
-        vim \
-        zip \
-        unzip \
-        p7zip-full \
-        htop \
-        pkg-config \
-        libcairo2-dev \
-        libgoogle-perftools4 libtcmalloc-minimal4 \
-        apt-transport-https ca-certificates && \
-    update-ca-certificates && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3
 
-# Set Python
-RUN ln -s /usr/bin/python3.10 /usr/bin/python
+WORKDIR /app
+COPY ./src .
+RUN python3 -m pip install wheel
 
-# Stage 2: Install kohya_ss and python modules
-FROM base as kohya_ss_setup
+# Todo: Install torch 2.1.0 for cu121 support (only available as nightly as of writing)
+## RUN python3 -m pip install --pre torch ninja setuptools --extra-index-url https://download.pytorch.org/whl/nightly/cu121
 
-# Add SDXL base model
-# This needs to already have been downloaded:
+# Todo: Install xformers nightly for Torch 2.1.0 support
+## RUN python3 -m pip install -v -U git+https://github.com/facebookresearch/xformers.git@main#egg=xformers
 
-RUN mkdir -p /sd-models
+# Install requirements
+COPY ./kohya_ss/requirements.txt ./requirements_linux_docker.txt ./
+COPY ./kohya_ss/setup/docker_setup.py ./setup.py
+RUN python3 -m pip install -r ./requirements_linux_docker.txt
+RUN python3 -m pip install -r ./requirements.txt
+RUN python3 -m pip install runpod
+RUN python3 -m pip install boto3
 
-WORKDIR /sd-models
+# Replace pillow with pillow-simd
+RUN python3 -m pip uninstall -y pillow && \
+    CC="cc -mavx2" python3 -m pip install -U --force-reinstall pillow-simd
 
-RUN wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors
+# Fix missing libnvinfer7
+USER root
+RUN ln -s /usr/lib/x86_64-linux-gnu/libnvinfer.so /usr/lib/x86_64-linux-gnu/libnvinfer.so.7 && \
+    ln -s /usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so /usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so.7
 
-# Create workspace working directory
-WORKDIR /
+RUN useradd -m -s /bin/bash appuser && \
+    chown -R appuser: /app
+USER appuser
+COPY --chown=appuser ./src .
+COPY --chown=appuser ./kohya_ss .
 
-# Install Kohya_ss
-RUN git clone https://github.com/bmaltais/kohya_ss.git
-WORKDIR /kohya_ss
-RUN git checkout ${KOHYA_VERSION} && \
-    python3 -m venv --system-site-packages venv && \
-    source venv/bin/activate && \
-    pip3 install torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 && \
-    pip3 install runpod \
-    pip3 install boto3 \
-    pip3 install xformers==0.0.21 \
-        bitsandbytes==0.41.1 \
-        tensorboard==2.12.3 \
-        tensorflow==2.12.0 \
-        wheel \
-        tensorrt && \
-    pip3 install -r requirements.txt && \
-    pip3 install . && \
-    deactivate
-
-COPY src ./src
-
-WORKDIR /
-
-# Copy scripts
-COPY --chmod=755 pre_start.sh fix_venv.sh ./
-
-# Copy accelerate configuration file
-COPY accelerate.yaml ./
-
-# Start the container
-
-CMD [ "/pre_start.sh", "python3 -u /handler.py"]
+STOPSIGNAL SIGINT
+ENV LD_PRELOAD=libtcmalloc.so
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+ENV PATH="$PATH:/home/appuser/.local/bin"
+CMD python3 -u /handler.py

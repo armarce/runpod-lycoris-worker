@@ -58,7 +58,7 @@ FROM base as kohya_ss_setup
 # This needs to already have been downloaded:
 #   wget https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
 RUN mkdir -p /sd-models
-COPY /sd-models/v1-5-pruned.safetensors /sd-models/v1-5-pruned.safetensors
+RUN cp /sd-models/v1-5-pruned.safetensors /sd-models/v1-5-pruned.safetensors
 
 # Create workspace working directory
 WORKDIR /

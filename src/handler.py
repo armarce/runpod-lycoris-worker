@@ -51,7 +51,7 @@ def handler(job):
     #cmdVenv = 'source venv/bin/activate'
 
     cmdLora = f'''accelerate launch --num_cpu_threads_per_process=4 "./train_network.py" \
---enable_bucket --pretrained_model_name_or_path="/sd-models/v1-5-pruned.safetensors" \
+--enable_bucket --pretrained_model_name_or_path="/workspace/sd-models/v1-5-pruned.safetensors" \
 --train_data_dir="{basePath}/datasets" --resolution="512,512" --output_dir="{basePath}/datasets" \
 --logging_dir="{basePath}/logs" --network_alpha="16" \
 --training_comment="trigger words: {output_name}" --save_model_as=safetensors \
@@ -65,7 +65,7 @@ def handler(job):
 --multires_noise_iterations="6" --multires_noise_discount="0.2"'''
     
     #subprocess.run(cmdVenv, shell=True)
-    
+
     subprocess.run(cmdLora, shell=True)
 
     safetensorPath = f'{basePath}/datasets/{output_name}.safetensors'

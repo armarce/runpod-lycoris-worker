@@ -30,7 +30,7 @@ RUN git clone https://github.com/bmaltais/kohya_ss
 
 WORKDIR /workspace/kohya_ss
 
-ADD src .
+COPY src/. .
 
 RUN python3 -m pip install -r ./requirements_linux_docker.txt
 RUN python3 -m pip install -r ./requirements.txt

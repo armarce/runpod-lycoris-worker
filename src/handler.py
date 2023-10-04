@@ -65,6 +65,7 @@ def handler(job):
 --multires_noise_iterations="6" --multires_noise_discount="0.2"'''
     
     #subprocess.run(cmdVenv, shell=True)
+    
     subprocess.run(cmdLora, shell=True)
 
     safetensorPath = f'{basePath}/datasets/{output_name}.safetensors'

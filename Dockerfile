@@ -27,8 +27,12 @@ RUN python3 -m pip install wheel
 ## RUN python3 -m pip install -v -U git+https://github.com/facebookresearch/xformers.git@main#egg=xformers
 
 # Install requirements
-COPY kohya_ss/requirements.txt ./requirements_linux_docker.txt ./
-COPY kohya_ss/setup/docker_setup.py ./setup.py
+RUN git clone https://github.com/bmaltais/kohya_ss
+
+COPY ./src .
+
+RUN mv ./kohya_ss .
+RUN mv ./setup/docker_setup.py ./setup.py
 RUN python3 -m pip install -r ./requirements_linux_docker.txt
 RUN python3 -m pip install -r ./requirements.txt
 RUN python3 -m pip install runpod
@@ -43,12 +47,11 @@ USER root
 RUN ln -s /usr/lib/x86_64-linux-gnu/libnvinfer.so /usr/lib/x86_64-linux-gnu/libnvinfer.so.7 && \
     ln -s /usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so /usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so.7
 
-RUN useradd -m -s /bin/bash appuser && \
-    chown -R appuser: /app
-USER appuser
-COPY --chown=appuser src .
+RUN useradd -m -s /bin/bash appuser
+RUN cp ./kohya_ss .
 
-#COPY --chown=appuser kohya_ss .
+RUN chown -R appuser: /app
+USER appuser
 
 STOPSIGNAL SIGINT
 ENV LD_PRELOAD=libtcmalloc.so

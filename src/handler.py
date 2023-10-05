@@ -10,9 +10,7 @@ from renameImages import renameImages
 
 def handler(job):
 
-    print(job)
-    
-    S3(job['s3Config']).testConnection()
+    S3(job['input']['s3']).testConnection()
 
     job_input = job['input']
 
@@ -68,7 +66,7 @@ def handler(job):
 
     safetensorPath = f'{basePath}/datasets/{output_name}/{output_name}.safetensors'
 
-    S3(job['s3Config']).uploadFile(safetensorPath)
+    S3(job['input']['s3']).uploadFile(safetensorPath)
 
     os.remove(zipFilepath)
     os.remove(safetensorPath)

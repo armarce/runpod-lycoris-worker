@@ -26,7 +26,7 @@ def handler(job):
 
     zipFilepath = basePath + '/' + os.path.basename(dataset_url) 
 
-    dirExtractPath = basePath + '/datasets/' + job_input['output_name']
+    dirExtractPath = basePath + '/datasets/' + job_input['output_name'] + '/temp'
 
     open(zipFilepath, 'wb').write(r.content)
 
@@ -70,7 +70,7 @@ def handler(job):
 
     os.remove(zipFilepath)
     os.remove(safetensorPath)
-    shutil.rmtree(datasetDir)
+    shutil.rmtree(f"{basePath}/datasets/{output_name}")
 
     return {
         "totalImages": totalImages,

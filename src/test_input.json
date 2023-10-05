@@ -1,14 +1,14 @@
 {
-    "input": {
-        "dataset_url": "",
-        "output_name": "",
-        "train_batch_size": 3
-    },
-    "s3Config": {
-        "bucket_name": "", 
-        "dir": "", 
-        "endpoint_url": "",
-        "aws_access_key_id": "",
-        "aws_secret_access_key": ""
-    }
+	"input": {
+		"dataset_url": "",
+		"output_name": "",
+		"train_batch_size": 3,
+		"s3": {
+			"bucket_name": "",
+			"dir": "",
+			"endpoint_url": "",
+			"aws_access_key_id": "",
+			"aws_secret_access_key": ""
+		}
+	}
 }

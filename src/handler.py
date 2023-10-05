@@ -48,7 +48,7 @@ def handler(job):
 
     renameImages(datasetDir, train_batch_size, output_name)
 
-    cmdLora = f'''accelerate launch --num_cpu_threads_per_process=4 "./train_network.py" \
+    cmdLora = f'''accelerate launch --num_cpu_threads_per_process=4 "/workspace/kohya_ss/train_network.py" \
 --enable_bucket --pretrained_model_name_or_path="/workspace/sd-models/v1-5-pruned.safetensors" \
 --train_data_dir="{basePath}/datasets/{output_name}" --resolution="512,512" --output_dir="{basePath}/datasets/{output_name}" \
 --logging_dir="{basePath}/logs" --network_alpha="16" \

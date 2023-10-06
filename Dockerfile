@@ -1,6 +1,12 @@
 FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
 
-# Install Nvicida CUDA
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Africa/Johannesburg \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=on \
+    SHELL=/bin/bash
+
+######################## Install NVIDIA CUDA ####################################
 
 RUN apt update -y 
 RUN apt install build-essential -y

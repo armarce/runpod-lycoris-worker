@@ -5,6 +5,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=on
 
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y git    
+
 ######################## Install NVIDIA CUDA ####################################
 
 RUN apt update -y 
@@ -24,6 +28,15 @@ RUN pip install xformers==0.0.21 lion-pytorch==0.0.6 lycoris_lora==1.8.3 runpod 
 
 #################################################################################
 
+######################## Copy src files #########################################
+
+COPY src/. .
+
+######################## Move accelerate config file ###########################
+
+RUN mkdir /root/.cache/huggingface/accelerate
+RUN cp default_config.yaml /root/.cache/huggingface/accelerate
+
 ######################## Download SD model 1.5 Pruned (7.7 GB) ##################
 
 WORKDIR /workspace/
@@ -36,17 +49,6 @@ RUN wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5
 
 
 #################################################################################
-
-######################## Copy src files #########################################
-
-WORKDIR /workspace/sd-scripts
-
-COPY src/. .
-
-######################## Move accelerate config file ###########################
-
-RUN mkdir /root/.cache/huggingface/accelerate
-RUN cp default_config.yaml /root/.cache/huggingface/accelerate
 
 WORKDIR /workspace/sd-scripts
 CMD python handler.py

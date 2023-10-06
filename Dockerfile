@@ -15,7 +15,7 @@ RUN git clone https://github.com/kohya-ss/sd-scripts
 WORKDIR /workspace/sd-scripts
 
 RUN pip install -r requirements.txt
-RUN pip install xformers==0.0.21 lion-pytorch==0.0.6 lycoris_lora==1.8.3
+RUN pip install xformers==0.0.21 lion-pytorch==0.0.6 lycoris_lora==1.8.3 runpod boto3
 
 #################################################################################
 

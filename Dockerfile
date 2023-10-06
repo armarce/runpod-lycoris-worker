@@ -7,7 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt update && \
     apt upgrade -y && \
-    apt install -y git    
+    apt install -y git && \
+    apt install wget
 
 ######################## Install NVIDIA CUDA ####################################
 
@@ -42,7 +43,7 @@ RUN cp /workspace/sd-scripts/default_config.yaml /root/.cache/huggingface/accele
 
 WORKDIR /workspace/
 
-RUN mkdir sd-models
+RUN mkdir -p sd-models
 
 WORKDIR /workspace/sd-models
 

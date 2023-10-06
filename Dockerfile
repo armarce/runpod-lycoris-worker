@@ -34,8 +34,9 @@ COPY src/. .
 
 ######################## Move accelerate config file ###########################
 
+WORKDIR /
 RUN mkdir /root/.cache/huggingface/accelerate
-RUN cp default_config.yaml /root/.cache/huggingface/accelerate
+RUN cp /workspace/sd-scripts/default_config.yaml /root/.cache/huggingface/accelerate
 
 ######################## Download SD model 1.5 Pruned (7.7 GB) ##################
 

@@ -26,7 +26,7 @@ def handler(job):
 
     zipFilepath = basePath + '/' + os.path.basename(dataset_url) 
 
-    dirExtractPath = basePath + '/datasets/' + job_input['output_name'] + '/temp'
+    dirExtractPath = f"{basePath}/datasets/{output_name}/temp"
 
     open(zipFilepath, 'wb').write(r.content)
 
@@ -44,7 +44,9 @@ def handler(job):
 
     datasetDir = f"{basePath}/datasets/{output_name}/{repeats}_{output_name}"
 
-    os.rename(dirExtractPath, datasetDir)
+    subprocess.run(f"mv {dirExtractPath} {datasetDir}", shell=True)
+
+    subprocess.run(f"rm -r {datasetDir}/temp", shell=True)
 
     renameImages(datasetDir, train_batch_size, output_name)
 
@@ -69,8 +71,7 @@ def handler(job):
     S3(job['input']['s3']).uploadFile(safetensorPath)
 
     os.remove(zipFilepath)
-    os.remove(safetensorPath)
-    shutil.rmtree(f"{basePath}/datasets/{output_name}")
+    subprocess.run(f"rm -r {datasetDir}", shell=True)
 
     return {
         "totalImages": totalImages,

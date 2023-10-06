@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/pytorch:23.04-py3 as base
+FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel as base
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/London
 

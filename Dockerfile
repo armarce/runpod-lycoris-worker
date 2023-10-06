@@ -12,7 +12,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa && \
 # Set python 3.10 and cuda 11.8 as default
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 3 && \
     update-alternatives --set python3 /usr/bin/python3.10 && \
-    update-alternatives --set cuda /usr/local/cuda-11.8
+    update-alternatives --set cuda /usr/local/cuda-11.7
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3
 

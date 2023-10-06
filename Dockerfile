@@ -3,8 +3,7 @@ FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Africa/Johannesburg \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=on \
-    SHELL=/bin/bash
+    PIP_NO_CACHE_DIR=on
 
 ######################## Install NVIDIA CUDA ####################################
 
@@ -43,9 +42,6 @@ RUN wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5
 WORKDIR /workspace/sd-scripts
 
 COPY src/. .
-
-RUN pip install xformers==0.0.21
-
 
 ######################## Move accelerate config file ###########################
 

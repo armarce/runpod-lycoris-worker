@@ -60,7 +60,7 @@ def handler(job):
 
     datasetDir = f"{basePath}/datasets/{output_name}/{repeats}_{output_name}"
 
-    subprocess.run(f"mv {dirExtractPath} {datasetDir}", shell=True)
+    #subprocess.run(f"mv {dirExtractPath} {datasetDir}", shell=True)
 
     os.rename(dirExtractPath, datasetDir)
 

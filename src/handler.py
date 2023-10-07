@@ -16,10 +16,22 @@ def handler(job):
 
     dataset_url = job_input['dataset_url']
 
+    if not dataset_url:
+            
+        raise ValueError('Dataset url is required')
+
     train_batch_size = job_input['train_batch_size']
+
+    if not train_batch_size:
+
+        raise ValueError('train_batch_size is required')
 
     output_name = job_input['output_name']
 
+    if not output_name:
+
+        raise ValueError('output_name name is required')
+    
     r = requests.get(dataset_url, allow_redirects=True)
 
     basePath = os.path.dirname(__file__) + '/train'
@@ -34,6 +46,10 @@ def handler(job):
 
     totalImages = len(fnmatch.filter(os.listdir(dirExtractPath), '*.*'))
 
+    if totalImages < 10: 
+
+        raise ValueError('Dataset must have at least 10 images')
+
     repeats = int(math.ceil(1200 / totalImages))
 
     groups = int(math.ceil(totalImages/train_batch_size))
@@ -46,11 +62,13 @@ def handler(job):
 
     subprocess.run(f"mv {dirExtractPath} {datasetDir}", shell=True)
 
-    subprocess.run(f"rm -r {datasetDir}/temp", shell=True)
+    os.rename(dirExtractPath, datasetDir)
+
+    #subprocess.run(f"rm -r {datasetDir}/temp", shell=True)
 
     renameImages(datasetDir, train_batch_size, output_name)
 
-    cmdLora = f'''accelerate launch --num_cpu_threads_per_process=4 "/workspace/sd-scripts/train_network.py" \
+    cmdLycoris = f'''accelerate launch --num_cpu_threads_per_process=4 "/workspace/sd-scripts/train_network.py" \
 --enable_bucket --pretrained_model_name_or_path="/workspace/sd-models/v1-5-pruned.safetensors" \
 --train_data_dir="{basePath}/datasets/{output_name}" --resolution="512,512" --output_dir="{basePath}/datasets/{output_name}" \
 --logging_dir="{basePath}/logs" --network_alpha="16" \
@@ -64,14 +82,15 @@ def handler(job):
 --bucket_reso_steps=64 --min_snr_gamma=5 --xformers --bucket_no_upscale \
 --multires_noise_iterations="6" --multires_noise_discount="0.2"'''
 
-    subprocess.run(cmdLora, shell=True)
+    subprocess.run(cmdLycoris, shell=True)
 
     safetensorPath = f'{basePath}/datasets/{output_name}/{output_name}.safetensors'
 
     S3(job['input']['s3']).uploadFile(safetensorPath)
 
     os.remove(zipFilepath)
-    subprocess.run(f"rm -r {datasetDir}", shell=True)
+    #subprocess.run(f"rm -r {datasetDir}", shell=True)
+    shutil.rmtree(datasetDir)
 
     return {
         "totalImages": totalImages,
